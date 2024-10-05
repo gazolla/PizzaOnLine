@@ -26,7 +26,6 @@ public class ClientController {
         return ResponseEntity.ok(clientes);  
     }
 
-
     @PostMapping
     public ResponseEntity<Client> criarCliente(@RequestBody Client client) {
         Client novoCliente = clientRepository.save(client);

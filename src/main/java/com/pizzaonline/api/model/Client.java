@@ -10,39 +10,39 @@ public class Client {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String nome;
+    private String name;
     private String email;
-    private String telefone;
-    private String endereco;
+    private String phone;
+    private String address;
 
     public Client() {}
 
     public Client(Long id, String nome, String email, String telefone, String endereco) {
         this.id = id;
-        this.nome = nome;
+        this.name = nome;
         this.email = email;
-        this.telefone = telefone;
-        this.endereco = endereco;
+        this.phone = telefone;
+        this.address = endereco;
     }
 
     public Long getId() {
         return id;
     }
 
-    public String getNome() {
-        return nome;
+    public String getName() {
+        return name;
     }
 
     public String getEmail() {
         return email;
     }
 
-    public String getTelefone() {
-        return telefone;
+    public String getPhone() {
+        return phone;
     }
 
-    public String getEndereco() {
-        return endereco;
+    public String getAddress() {
+        return address;
     }
 
 }
