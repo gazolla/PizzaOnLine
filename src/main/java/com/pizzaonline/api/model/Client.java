@@ -1,9 +1,12 @@
 package com.pizzaonline.api.model;
 
+import java.util.Set;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 
 @Entity
 public class Client {
@@ -14,15 +17,19 @@ public class Client {
     private String email;
     private String phone;
     private String address;
+    
+    @OneToMany(mappedBy = "client")
+    Set<Order> orders;
 
     public Client() {}
 
-    public Client(Long id, String nome, String email, String telefone, String endereco) {
+    public Client(Long id, String nome, String email, String telefone, String endereco, Set<Order> orders) {
         this.id = id;
         this.name = nome;
         this.email = email;
         this.phone = telefone;
         this.address = endereco;
+        this.orders = orders;
     }
 
     public Long getId() {
@@ -44,9 +51,13 @@ public class Client {
     public String getAddress() {
         return address;
     }
+    
+    public Set<Order> getOrders(){
+    	return orders;
+    }
+
 
 }
 
 
-   // @OneToMany(mappedBy = "client")
-   // Set<Pedido> pedidos
+

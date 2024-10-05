@@ -6,26 +6,29 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
 
 @Entity
 public class Payment {
 
     public Payment() { }
 
-	public Payment(Long id, Double amount, String paymentMethod, LocalDateTime paymentDate) {
-		this.id = id;
-		this.amount = amount;
-		this.paymentMethod = paymentMethod;
-		this.paymentDate = paymentDate;
-	}
+    public Payment(Long id, Order order, Double amount, String paymentMethod, LocalDateTime paymentDate) {
+        this.id = id;
+        this.order = order;
+        this.amount = amount;
+        this.paymentMethod = paymentMethod;
+        this.paymentDate = paymentDate;
+    }
 
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-  //  @OneToOne
-  //  @JoinColumn(name = "order_id")
-  //  private Order order;
+    @OneToOne
+    @JoinColumn(name = "order_id")
+    private Order order;
     private Double amount;
     private String paymentMethod;
     private LocalDateTime paymentDate;
@@ -35,9 +38,9 @@ public class Payment {
         return id;
     }
 
-   // public Order getOrder() {
-   //     return order;
-  //  }
+    public Order getOrder() {
+        return order;
+    }
 
     public Double getAmount() {
         return amount;
