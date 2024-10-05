@@ -27,15 +27,22 @@ public class PaymentTests {
 
     @Test
     void shouldRegisterPayment() {
-        // Criar e salvar um novo Client antes de registrar o pagamento
-        Client newClient = new Client(null, "Test Client", "client@test.com", "123456789", "123 Test St, Test City", new HashSet<Order>());
+        // Criar e salvar um Client
+        Client newClient = new Client(null, "Test Client", "client@test.com", "123456789", "123 Test St, Test City", new HashSet<>());
         ResponseEntity<Client> clientResponse = restTemplate.postForEntity("/api/clients", newClient, Client.class);
         assertEquals(HttpStatus.CREATED, clientResponse.getStatusCode());
         Client registeredClient = clientResponse.getBody();
         assertNotNull(registeredClient.getId(), "O ID do cliente deve ser gerado");
 
-        // Criar um pedido com esse cliente
-        Order newOrder = createTestOrder(registeredClient);
+        // Criar e salvar uma pizza
+        Pizza pizza = new Pizza(null, "Margherita", "Classic Italian pizza", 19.99, new HashSet<>());
+        ResponseEntity<Pizza> pizzaResponse = restTemplate.postForEntity("/api/pizzas", pizza, Pizza.class);
+        assertEquals(HttpStatus.CREATED, pizzaResponse.getStatusCode());
+        Pizza registeredPizza = pizzaResponse.getBody();
+        assertNotNull(registeredPizza.getId(), "O ID da pizza deve ser gerado");
+
+        // Criar um pedido com a pizza e o cliente
+        Order newOrder = new Order(null, registeredClient, new HashSet<>(List.of(registeredPizza)), null, null, LocalDateTime.now(), null, 19.99, null);
         ResponseEntity<Order> orderResponse = restTemplate.postForEntity("/api/orders", newOrder, Order.class);
         assertEquals(HttpStatus.CREATED, orderResponse.getStatusCode());
         Order registeredOrder = orderResponse.getBody();
@@ -43,7 +50,7 @@ public class PaymentTests {
 
         // Criar um pagamento associado ao pedido
         Payment newPayment = new Payment(null, registeredOrder, 100.00, "Credit Card", LocalDateTime.now());
-        ResponseEntity<Payment> paymentResponse = restTemplate.postForEntity("/api/pagaments", newPayment, Payment.class);
+        ResponseEntity<Payment> paymentResponse = restTemplate.postForEntity("/api/payments", newPayment, Payment.class);
 
         // Verificar o status da resposta e validar os dados
         assertEquals(HttpStatus.CREATED, paymentResponse.getStatusCode(), "O pagamento deve ser criado com sucesso");
@@ -54,23 +61,11 @@ public class PaymentTests {
         assertEquals(registeredOrder.getId(), registeredPayment.getOrder().getId(), "O pedido associado deve ser o mesmo");
     }
 
-    private Order createTestOrder(Client client) {
-        // Criar uma nova pizza para o pedido
-        Pizza pizza = new Pizza(null, "Margherita", "Classic Italian pizza", 19.99, new HashSet<>());
-        HashSet<Pizza> pizzas = new HashSet<>();
-        pizzas.add(pizza);
-
-        // Criar um novo pedido
-        return new Order(null, client, pizzas, null, null, LocalDateTime.now(), null, 19.99, null);
-    }
-
     @Test
     void shouldListPayments() {
-        ResponseEntity<List> response = restTemplate.getForEntity("/api/pagaments", List.class);
+        ResponseEntity<List> response = restTemplate.getForEntity("/api/payments", List.class);
         
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
     }
-
-
 }

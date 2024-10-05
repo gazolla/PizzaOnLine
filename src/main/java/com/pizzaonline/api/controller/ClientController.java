@@ -15,7 +15,7 @@ import com.pizzaonline.api.model.Client;
 import com.pizzaonline.api.repository.ClientRepository;
 
 @RestController
-@RequestMapping("/api/clientes")
+@RequestMapping("/api/clients")
 public class ClientController {
     @Autowired
     private ClientRepository clientRepository;

@@ -26,7 +26,7 @@ class ClientTests {
 	@Test
 	void shouldCreateClient() {
 		Client novoCliente = new Client(null, "João Silva", "joao@email.com", "123456789", "Rua A, 123", new HashSet<Order>());
-        ResponseEntity<Client> clienteResponse = restTemplate.postForEntity("/api/clientes", novoCliente, Client.class);
+        ResponseEntity<Client> clienteResponse = restTemplate.postForEntity("/api/clients", novoCliente, Client.class);
         assertEquals(HttpStatus.CREATED, clienteResponse.getStatusCode());
         Client clienteCadastrado = clienteResponse.getBody();
         assertNotNull(clienteCadastrado.getId());
@@ -34,7 +34,7 @@ class ClientTests {
 	
 	@Test
     void shouldListClients() {
-        ResponseEntity<List> response = restTemplate.getForEntity("/api/clientes", List.class);
+        ResponseEntity<List> response = restTemplate.getForEntity("/api/clients", List.class);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
     }
