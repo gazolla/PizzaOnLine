@@ -1,12 +1,13 @@
 package com.pizzaonline.api.model;
 
-import java.time.LocalDateTime;
+import java.sql.Timestamp;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 
 @Entity
@@ -14,9 +15,8 @@ public class Payment {
 
     public Payment() { }
 
-    public Payment(Long id, Order order, Double amount, String paymentMethod, LocalDateTime paymentDate) {
+    public Payment(Long id, Double amount, String paymentMethod, Timestamp paymentDate) {
         this.id = id;
-        this.order = order;
         this.amount = amount;
         this.paymentMethod = paymentMethod;
         this.paymentDate = paymentDate;
@@ -26,20 +26,16 @@ public class Payment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne
-    @JoinColumn(name = "order_id")
-    private Order order;
     private Double amount;
     private String paymentMethod;
-    private LocalDateTime paymentDate;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+    private Timestamp  paymentDate;
+    
+   // @OneToOne(mappedBy = "payment")
+   // private Order order;
 
-    // Getters
     public Long getId() {
         return id;
-    }
-
-    public Order getOrder() {
-        return order;
     }
 
     public Double getAmount() {
@@ -50,7 +46,11 @@ public class Payment {
         return paymentMethod;
     }
 
-    public LocalDateTime getPaymentDate() {
+    public Timestamp getPaymentDate() {
         return paymentDate;
     }
+    
+  //  public Order getOrder() { 
+  //      return order;
+  //  }
 }

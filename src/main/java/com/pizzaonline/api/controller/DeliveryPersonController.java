@@ -20,7 +20,7 @@ public class DeliveryPersonController {
     @PostMapping
     public ResponseEntity<DeliveryPerson> registerDeliveryPerson(@RequestBody DeliveryPerson deliveryPerson) {
         DeliveryPerson savedDeliveryPerson = deliveryPersonRepository.save(deliveryPerson);
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedDeliveryPerson);
+        return new ResponseEntity<>(savedDeliveryPerson, HttpStatus.CREATED);
     }
 
     @GetMapping

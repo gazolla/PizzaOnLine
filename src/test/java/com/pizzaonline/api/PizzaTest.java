@@ -24,7 +24,7 @@ public class PizzaTest {
     @Test
     void shouldCreatePizza() {
         // Criando uma nova pizza com um Set vazio para orders
-        Pizza newPizza = new Pizza(null, "Margherita", "Classic Italian pizza", 19.99, new HashSet<>());
+        Pizza newPizza = new Pizza(null, "Margherita", "Classic Italian pizza", 19.99);
         ResponseEntity<Pizza> pizzaResponse = restTemplate.postForEntity("/api/pizzas", newPizza, Pizza.class);
         
         assertEquals(HttpStatus.CREATED, pizzaResponse.getStatusCode());

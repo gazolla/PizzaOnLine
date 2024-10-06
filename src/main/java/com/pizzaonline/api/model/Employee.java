@@ -1,9 +1,12 @@
 package com.pizzaonline.api.model;
 
+import java.util.Set;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 
 @Entity
 public class Employee {
@@ -16,20 +19,16 @@ public class Employee {
     private String login;
     private String password;
 
-   // @OneToMany(mappedBy = "responsibleEmployee")
-   // private Set<Order> managedOrders;
 
-    // Default constructor (required by Hibernate)
     public Employee() { }
 
     // Constructor with parameters (optional)
-    public Employee(Long id, String name, String position, String login, String password) {//, Set<Order> managedOrders) {
+    public Employee(Long id, String name, String position, String login, String password) {
         this.id = id;
         this.name = name;
         this.position = position;
         this.login = login;
         this.password = password;
-     //   this.managedOrders = managedOrders;
     }
 
     // Getters
@@ -52,8 +51,4 @@ public class Employee {
     public String getPassword() {
         return password;
     }
-
-  //  public Set<Order> getManagedOrders() {
-  //      return managedOrders;
-  //  }
 }

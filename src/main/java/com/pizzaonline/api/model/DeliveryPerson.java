@@ -1,9 +1,14 @@
 package com.pizzaonline.api.model;
 
+import java.util.Set;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 
 @Entity
 public class DeliveryPerson {
@@ -14,21 +19,19 @@ public class DeliveryPerson {
     private String name;   
     private String phone;
     
-   // @OneToMany(mappedBy = "deliveryPerson")
-    //private Set<Order> deliveredOrders;
-
-    // Default constructor (required by Hibernate)
+   // @JsonBackReference 
+    @OneToMany(mappedBy = "deliveryPerson")
+    private Set<Order> orders;
+    
     public DeliveryPerson() { }
 
     // Constructor with all parameters
-    public DeliveryPerson(Long id, String name, String phone){//, Set<Order> deliveredOrders) {
+    public DeliveryPerson(Long id, String name, String phone) {
         this.id = id;
         this.name = name;
         this.phone = phone;
-       // this.deliveredOrders = deliveredOrders;
     }
 
-    // Getters
     public Long getId() {
         return id;
     }
@@ -40,8 +43,4 @@ public class DeliveryPerson {
     public String getPhone() {
         return phone;
     }
-
-   // public Set<Order> getDeliveredOrders() {
-   //     return deliveredOrders;
-   // }
 }

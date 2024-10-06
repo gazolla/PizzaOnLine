@@ -1,5 +1,6 @@
 package com.pizzaonline.api.controller;
 
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -26,18 +27,16 @@ public class OrderController {
 
     @PostMapping
     public ResponseEntity<Order> createOrder(@RequestBody Order order) {
-        order.setStatus(OrderStatus.RECEIVED); // Status inicial
-        order.setOrderDate(LocalDateTime.now()); // Definindo a data do pedido
         Order savedOrder = orderRepository.save(order);
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedOrder);
+        return new ResponseEntity<>(savedOrder, HttpStatus.CREATED);
     }
 
-    @PutMapping("/{id}/production")
+    @PutMapping("/{id}/cooking")
     public ResponseEntity<Order> setOrderInProduction(@PathVariable Long id) {
         Optional<Order> orderOptional = orderRepository.findById(id);
         if (orderOptional.isPresent()) {
             Order order = orderOptional.get();
-            order.setStatus(OrderStatus.IN_PRODUCTION);
+            order.setStatus(OrderStatus.COOKING);
             orderRepository.save(order);
             return ResponseEntity.ok(order);
         } else {

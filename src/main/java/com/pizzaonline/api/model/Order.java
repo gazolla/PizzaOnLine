@@ -1,11 +1,13 @@
 package com.pizzaonline.api.model;
 
-import java.time.LocalDateTime;
+import java.sql.Timestamp;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -18,6 +20,7 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "customer_order")
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Order {
 
     @Id
@@ -25,37 +28,45 @@ public class Order {
     private Long id;
 
     @ManyToOne
+    @JoinColumn(name = "client_id")
+    @JsonIgnoreProperties("orders")
     private Client client;
-
+    
     @ManyToMany
     @JoinTable(
         name = "order_pizza",
         joinColumns = @JoinColumn(name = "order_id"),
         inverseJoinColumns = @JoinColumn(name = "pizza_id")
     )
+    @JsonIgnoreProperties("orders")
     private Set<Pizza> pizzas;
-
+    
     @ManyToOne
+    @JoinColumn(name = "deliveryperson_id")
+    @JsonIgnoreProperties("orders")
     private DeliveryPerson deliveryPerson;
-
+    
     @ManyToOne
+    @JoinColumn(name = "responsibleemployee_id")
+    @JsonIgnoreProperties("orders")
     private Employee responsibleEmployee;
 
-    private LocalDateTime orderDate;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+    private Timestamp orderDate;
 
-    @Enumerated(EnumType.STRING)
-    private OrderStatus status;
+    private String status;
 
     private Double totalAmount;
 
-    @OneToOne(mappedBy = "order")
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "payment_id")
+    @JsonIgnoreProperties("orders")
     private Payment payment;
 
     public Order() {}
 
     public Order(Long id, Client client, Set<Pizza> pizzas, DeliveryPerson deliveryPerson, Employee responsibleEmployee,
-			LocalDateTime orderDate, OrderStatus status, Double totalAmount, Payment payment) {
-		super();
+    		Timestamp orderDate, String status, Double totalAmount, Payment payment) {
 		this.id = id;
 		this.client = client;
 		this.pizzas = pizzas;
@@ -68,15 +79,14 @@ public class Order {
 	}
 
     
-	public void setOrderDate(LocalDateTime orderDate) {
+	public void setOrderDate(Timestamp orderDate) {
 		this.orderDate = orderDate;
 	}
 
-	public void setStatus(OrderStatus status) {
+	public void setStatus(String status) {
 		this.status = status;
 	}
 
-	// Getters
     public Long getId() {
         return id;
     }
@@ -97,11 +107,11 @@ public class Order {
         return responsibleEmployee;
     }
 
-    public LocalDateTime getOrderDate() {
+    public Timestamp getOrderDate() {
         return orderDate;
     }
 
-    public OrderStatus getStatus() {
+    public String getStatus() {
         return status;
     }
 
@@ -112,4 +122,8 @@ public class Order {
     public Payment getPayment() {
         return payment;
     }
+
+	public void setPayment(Payment payment) {
+		this.payment = payment;
+	}
 }

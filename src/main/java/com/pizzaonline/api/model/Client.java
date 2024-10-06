@@ -19,17 +19,16 @@ public class Client {
     private String address;
     
     @OneToMany(mappedBy = "client")
-    Set<Order> orders;
-
+    private Set<Order> orders;
+    
     public Client() {}
 
-    public Client(Long id, String nome, String email, String telefone, String endereco, Set<Order> orders) {
+    public Client(Long id, String nome, String email, String telefone, String endereco) {
         this.id = id;
         this.name = nome;
         this.email = email;
         this.phone = telefone;
         this.address = endereco;
-        this.orders = orders;
     }
 
     public Long getId() {
@@ -51,12 +50,6 @@ public class Client {
     public String getAddress() {
         return address;
     }
-    
-    public Set<Order> getOrders(){
-    	return orders;
-    }
-
-
 }
 
 
