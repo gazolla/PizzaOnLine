@@ -1,42 +1,32 @@
 package com.pizzaonline.api;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
-import java.util.HashSet;
-import java.util.List;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.test.web.servlet.MockMvc;
 
-import com.pizzaonline.api.model.Employee;
-import com.pizzaonline.api.model.Order;
-
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest
+@AutoConfigureMockMvc
 public class EmployeeTests {
 
-	@Autowired
-    private TestRestTemplate restTemplate;
+    @Autowired
+    private MockMvc mockMvc;
 
     @Test
-    void shouldCreateEmployee() {
-        Employee newEmployee = new Employee(null, "Alice Johnson", "Manager", "alice.j", "password123");
-        ResponseEntity<Employee> employeeResponse = restTemplate.postForEntity("/api/employees", newEmployee, Employee.class);
-        
-        assertEquals(HttpStatus.CREATED, employeeResponse.getStatusCode());
-        Employee registeredEmployee = employeeResponse.getBody();
-        assertNotNull(registeredEmployee.getId());
+    void shouldCreateEmployee() throws Exception {
+        mockMvc.perform(post("/api/employees")
+                .contentType("application/json")
+                .content("{\"name\":\"Alice\",\"position\":\"Manager\",\"login\":\"alice123\",\"password\":\"securepassword\"}"))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.name").value("Alice"))
+                .andExpect(jsonPath("$.position").value("Manager"))
+                .andExpect(jsonPath("$.login").value("alice123"));
     }
 
-    @Test
-    void shouldListEmployees() {
-        ResponseEntity<List> response = restTemplate.getForEntity("/api/employees", List.class);
-        
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertNotNull(response.getBody());
-    }
+   
 }

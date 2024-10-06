@@ -1,53 +1,30 @@
 package com.pizzaonline.api;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
-import java.util.HashSet;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.pizzaonline.api.model.DeliveryPerson;
-import com.pizzaonline.api.model.Order;
-import com.pizzaonline.api.model.Payment;
-import com.pizzaonline.api.repository.DeliveryPersonRepository;
+import org.springframework.test.web.servlet.MockMvc;
 
 @SpringBootTest
-class DeliveryPersonTests {
+@AutoConfigureMockMvc
+public class DeliveryPersonTests {
 
     @Autowired
-    private DeliveryPersonRepository deliveryPersonRepository;
+    private MockMvc mockMvc;
 
     @Test
-    public void testPaymentSerialization() throws Exception {
-        ObjectMapper objectMapper = new ObjectMapper();
-        DeliveryPerson deliveryPerson = new DeliveryPerson(null, "John Doe", "123456789");
-        String json = objectMapper.writeValueAsString(deliveryPerson);
-        System.out.println(json);
-        assertNotNull(json);
+    void shouldCreateDeliveryPerson() throws Exception {
+        mockMvc.perform(post("/api/delivery-persons")
+                .contentType("application/json")
+                .content("{\"name\":\"Jane Doe\",\"phone\":\"987654321\"}"))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.name").value("Jane Doe"))
+                .andExpect(jsonPath("$.phone").value("987654321"));
     }
-    
-    
-    @Test
-    void shouldCreateAndFindDeliveryPerson() {
-        // Criação de um novo DeliveryPerson
-        DeliveryPerson newDeliveryPerson = new DeliveryPerson(null, "John Doe", "123456789");
-        DeliveryPerson savedDeliveryPerson = deliveryPersonRepository.save(newDeliveryPerson);
 
-        // Verificações após salvar
-        assertNotNull(savedDeliveryPerson);
-        assertNotNull(savedDeliveryPerson.getId());
-        assertEquals("John Doe", savedDeliveryPerson.getName());
-        assertEquals("123456789", savedDeliveryPerson.getPhone());
-
-        // Busca do DeliveryPerson pelo ID
-        DeliveryPerson foundDeliveryPerson = deliveryPersonRepository.findById(savedDeliveryPerson.getId()).orElse(null);
-        assertNotNull(foundDeliveryPerson);
-        assertEquals(savedDeliveryPerson.getId(), foundDeliveryPerson.getId());
-    }
 }

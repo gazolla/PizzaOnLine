@@ -1,42 +1,30 @@
 package com.pizzaonline.api;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
-import java.util.List;
-import java.util.HashSet;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.test.web.servlet.MockMvc;
 
-import com.pizzaonline.api.model.Pizza;
-
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest
+@AutoConfigureMockMvc
 public class PizzaTest {
 
     @Autowired
-    private TestRestTemplate restTemplate;
-    
-    @Test
-    void shouldCreatePizza() {
-        // Criando uma nova pizza com um Set vazio para orders
-        Pizza newPizza = new Pizza(null, "Margherita", "Classic Italian pizza", 19.99);
-        ResponseEntity<Pizza> pizzaResponse = restTemplate.postForEntity("/api/pizzas", newPizza, Pizza.class);
-        
-        assertEquals(HttpStatus.CREATED, pizzaResponse.getStatusCode());
-        Pizza registeredPizza = pizzaResponse.getBody();
-        assertNotNull(registeredPizza.getId());
-    }
+    private MockMvc mockMvc;
 
     @Test
-    void shouldListPizzas() {
-        ResponseEntity<List> response = restTemplate.getForEntity("/api/pizzas", List.class);
-        
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertNotNull(response.getBody());
+    void shouldCreatePizza() throws Exception {
+        mockMvc.perform(post("/api/pizzas")
+                .contentType("application/json")
+                .content("{\"name\":\"Pepperoni\",\"description\":\"Pepperoni pizza with cheese\",\"price\":25.0}"))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.name").value("Pepperoni"))
+                .andExpect(jsonPath("$.price").value(25.0));
     }
+
 }

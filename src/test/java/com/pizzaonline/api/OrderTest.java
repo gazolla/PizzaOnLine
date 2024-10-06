@@ -1,76 +1,137 @@
 package com.pizzaonline.api;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.test.web.servlet.MockMvc;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pizzaonline.api.model.Client;
 import com.pizzaonline.api.model.DeliveryPerson;
-import com.pizzaonline.api.model.Order;
-import com.pizzaonline.api.model.OrderStatus;
+import com.pizzaonline.api.model.Employee;
 import com.pizzaonline.api.model.Payment;
 import com.pizzaonline.api.model.Pizza;
+import com.pizzaonline.api.repository.ClientRepository;
+import com.pizzaonline.api.repository.DeliveryPersonRepository;
+import com.pizzaonline.api.repository.EmployeeRepository;
+import com.pizzaonline.api.repository.PaymentRepository;
+import com.pizzaonline.api.repository.PizzaRepository;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class OrderTest {
+@SpringBootTest
+@AutoConfigureMockMvc
+public class OrderTest
+{
 
-	@Autowired
-    private TestRestTemplate restTemplate;
+    @Autowired
+    private MockMvc mockMvc;
 
-	 
+    @Autowired
+    private ClientRepository clientRepository;
+
+    @Autowired
+    private EmployeeRepository employeeRepository;
+
+    @Autowired
+    private PizzaRepository pizzaRepository;
+
+    @Autowired
+    private DeliveryPersonRepository deliveryPersonRepository;
+
+    @Autowired
+    private PaymentRepository paymentRepository;
+    
+    private Client client;
+    private DeliveryPerson deliveryPerson;
+    private Employee employee;
+    private Pizza pizza;
+    private Payment payment;
+    
+
+	private void createAllEntitiesForOrder() {
+		 client = new Client(null, "Cliente Teste", "cliente@test.com", "123456789", "Rua A");
+         clientRepository.save(client);
+
+         pizza = new Pizza(null, "Pizza Teste", "Descrição da pizza", 25.0);
+         pizzaRepository.save(pizza);
+
+         deliveryPerson = new DeliveryPerson(null, "Entregador Teste", "987654321");
+         deliveryPersonRepository.save(deliveryPerson);
+
+         employee = new Employee(null, "Funcionário Teste", "Gerente", "funcionario", "senha");
+         employeeRepository.save(employee);
+
+         payment = new Payment(null, 100.0, "Credit Card", Timestamp.valueOf("2024-10-06 12:47:47"));
+         paymentRepository.save(payment);
+	}
+
+	private void cleanAllTables() {
+		paymentRepository.deleteAll();
+        pizzaRepository.deleteAll();
+        deliveryPersonRepository.deleteAll();
+        employeeRepository.deleteAll();
+        clientRepository.deleteAll();
+	}
+
     @Test
-    public void testOrderSerialization() throws Exception {
-        ObjectMapper objectMapper = new ObjectMapper();
-     // Criar e salvar um novo cliente
-        Client client = new Client(null, "Test Client", "client@test.com", "123456789", "123 Test St, Test City");
-        ResponseEntity<Client> clientResponse = restTemplate.postForEntity("/api/clients", client, Client.class);
-        assertEquals(HttpStatus.CREATED, clientResponse.getStatusCode());
-        Client rClient = clientResponse.getBody();
+    void shouldCreateOrder() throws Exception {
+    	cleanAllTables();
+        
+        createAllEntitiesForOrder();
 
-        // Criar e salvar uma nova pizza
-        Pizza pizza = new Pizza(null, "Margherita", "Classic Italian pizza", 19.99);
-        ResponseEntity<Pizza> pizzaResponse = restTemplate.postForEntity("/api/pizzas", pizza, Pizza.class);
-        assertEquals(HttpStatus.CREATED, pizzaResponse.getStatusCode());
-        Pizza rPizza = pizzaResponse.getBody();
-        
-     // Criação de um novo DeliveryPerson
-        DeliveryPerson deliveryPerson = new DeliveryPerson(null, "John Doe", "123456789");
-        ResponseEntity<DeliveryPerson> DPResponse = restTemplate.postForEntity("/api/delivery-persons", deliveryPerson, DeliveryPerson.class);
-        assertEquals(HttpStatus.CREATED, DPResponse.getStatusCode());
-        DeliveryPerson rDeliveryPerson = DPResponse.getBody();
-        
-        // Criar um pagamento e associá-lo ao pedido
-        Payment payment = new Payment(null, 100.00, "Credit Card", Timestamp.valueOf(LocalDateTime.now()));
-        ResponseEntity<Payment> paymentResponse = restTemplate.postForEntity("/api/payments", payment, Payment.class);
-        assertEquals(HttpStatus.CREATED, paymentResponse.getStatusCode());
-        Payment rpayment = paymentResponse.getBody();
-        
-     // Criar um novo pedido
-        Order order = new Order(
-                null, 
-                rClient, 
-                new HashSet<>(List.of(rPizza)), 
-                rDeliveryPerson, 
-                null, 
-                Timestamp.valueOf(LocalDateTime.now()), 
-                OrderStatus.RECEIVED, 
-                19.99, 
-                rpayment
-            );
+    	mockMvc.perform(post("/api/orders")
+    	        .contentType("application/json")
+    	        .content(String.format("""
+    	            {
+    	                "client": {"id": %d},
+    	                "pizzas": [{"id": %d}],
+    	                "deliveryPerson": {"id": %d},
+    	                "responsibleEmployee": {"id": %d},
+    	                "orderDate": "2024-10-06 12:47:47",
+    	                "status": "RECEIVED",
+    	                "totalAmount": 19.99,
+    	                "payment": {"id": %d}
+    	            }
+    	        """, client.getId(), pizza.getId(), deliveryPerson.getId(), employee.getId(), payment.getId())))
+    	        .andExpect(status().isCreated())
+    	        .andExpect(jsonPath("$.status").value("RECEIVED"))
+    	        .andExpect(jsonPath("$.totalAmount").value(19.99));
 
-        String json = objectMapper.writeValueAsString(order);
-        System.out.println(json);
+    }
+    
+    @Test
+    void shouldCreateOrderWihtoutPayment() throws Exception {
+
+	    Client c = clientRepository.save(new Client(null, "Cliente Teste", "cliente@test.com", "123456789", "Rua A"));
+	    Pizza p = pizzaRepository.save(new Pizza(null, "Pizza Teste", "Descrição da pizza", 25.0));
+	    DeliveryPerson dp = deliveryPersonRepository.save(new DeliveryPerson(null, "Entregador Teste", "987654321"));
+	    Employee e = employeeRepository.save(new Employee(null, "Funcionário Teste", "Gerente", "funcionario", "senha"));
+
+	    
+    	mockMvc.perform(post("/api/orders")
+    	        .contentType("application/json")
+    	        .content(String.format("""
+    	            {
+    	                "client": {"id": %d},
+    	                "pizzas": [{"id": %d}],
+    	                "deliveryPerson": {"id": %d},
+    	                "responsibleEmployee": {"id": %d},
+    	                "orderDate": "2024-10-06 12:47:47",
+    	                "status": "RECEIVED",
+    	                "totalAmount": 19.99
+    	            }
+    	        """, c.getId(), p.getId(), dp.getId(), e.getId())))
+    	        .andExpect(status().isCreated())
+    	        .andExpect(jsonPath("$.status").value("RECEIVED"))
+    	        .andExpect(jsonPath("$.totalAmount").value(19.99));
+
     }
 
+
+    
 }
