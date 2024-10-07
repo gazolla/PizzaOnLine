@@ -1,3 +1,4 @@
+
 # PizzaOnLine
 
 PizzaOnLine is a comprehensive online pizza ordering system built with Java Spring Boot. This application manages the entire process of ordering pizzas online, from customer registration to order delivery.
@@ -83,15 +84,16 @@ classDiagram
 The project follows a standard Spring Boot application structure:
 
 - `src/main/java/com/pizzaonline/api/`: Contains the Java source code
-  - `controller/`: REST API controllers
-  - `model/`: Domain model classes
-  - `repository/`: Data access interfaces
-  - `service/`: Business logic services
+    - `controller/`: REST API controllers
+    - `model/`: Domain model classes
+    - `repository/`: Data access interfaces
+    - `service/`: Business logic services
 - `src/main/resources/`: Contains application properties and static resources
 - `src/test/`: Contains test classes
 
 ## Setup and Running
 
+### Running with Maven
 1. Clone the repository:
    ```
    git clone https://github.com/gazolla/PizzaOnLine.git
@@ -113,6 +115,25 @@ The project follows a standard Spring Boot application structure:
    ```
 
 The application will start and be available at `http://localhost:8080`.
+
+### Running with Docker
+
+1. Clone the repository:
+   ```
+   git clone https://github.com/gazolla/PizzaOnLine.git
+   ```
+
+2. Navigate to the project directory:
+   ```
+   cd PizzaOnLine
+   ```
+
+3. Build and run the application using Docker Compose:
+   ```
+   docker compose up --build
+   ```
+
+This will start the application in a Docker container. The app will be available at `http://localhost:8080`.
 
 ## API Endpoints
 
